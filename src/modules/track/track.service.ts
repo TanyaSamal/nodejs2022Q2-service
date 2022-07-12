@@ -62,6 +62,16 @@ export class TrackService {
     return db.tracks[condidateIndex];
   }
 
+  async deleteRef(id: string, field: string): Promise<void> {
+    if (field === 'artistId' || field === 'albumId') {
+      db.tracks.map((track) => {
+        if (track[field] === id) {
+          track[field] = null;
+        }
+      });
+    }
+  }
+
   async deleteTrack(id: string): Promise<void> {
     if (!validateUuid(id)) {
       throw new BadRequestException(TrackErrors.INVALID_ID);
