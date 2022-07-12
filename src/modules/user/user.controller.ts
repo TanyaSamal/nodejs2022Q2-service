@@ -43,7 +43,7 @@ export class UserController {
 
   @Delete(':id')
   @HttpCode(204)
-  remove(@Param('id') id: string) {
+  delete(@Param('id') id: string) {
     return this.userService.deleteUser(id);
   }
 }

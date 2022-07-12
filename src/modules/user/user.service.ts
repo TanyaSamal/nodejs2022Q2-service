@@ -4,11 +4,12 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { v4 as uuidv4, validate, version } from 'uuid';
+import { v4 as uuidv4 } from 'uuid';
 import { CreateUserDto } from './dto/create-user.dto';
 import { IUser, UserErrors } from './user.interface';
 import { db } from '../../data/db';
 import { UpdatePasswordDto } from './dto/update-password.dto';
+import { validateUuid } from 'src/utils';
 
 @Injectable()
 export class UserService {
@@ -34,7 +35,7 @@ export class UserService {
   }
 
   async getUserById(id: string): Promise<IUser> {
-    if (!this.validateUuid(id)) {
+    if (!validateUuid(id)) {
       throw new BadRequestException(UserErrors.INVALID_ID);
     }
 
@@ -63,7 +64,7 @@ export class UserService {
       throw new BadRequestException(UserErrors.INCORRECT_BODY);
     }
 
-    if (!this.validateUuid(id)) {
+    if (!validateUuid(id)) {
       throw new BadRequestException(UserErrors.INVALID_ID);
     }
 
@@ -88,7 +89,7 @@ export class UserService {
   }
 
   async deleteUser(id: string): Promise<void> {
-    if (!this.validateUuid(id)) {
+    if (!validateUuid(id)) {
       throw new BadRequestException(UserErrors.INVALID_ID);
     }
 
@@ -99,9 +100,5 @@ export class UserService {
     } else {
       throw new NotFoundException(UserErrors.NOT_FOUND);
     }
-  }
-
-  validateUuid(uuid: string): boolean {
-    return validate(uuid) && version(uuid) === 4;
   }
 }
