@@ -1,5 +1,7 @@
 import {
   BadRequestException,
+  forwardRef,
+  Inject,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -9,9 +11,21 @@ import { db } from '../../data/db';
 import { CreateArtistDto } from './dto/create-artist.dto';
 import { validateUuid } from 'src/utils';
 import { UpdateArtistDto } from './dto/update-artist.dto';
+import { TrackService } from '../track/track.service';
+import { AlbumService } from '../album/album.service';
+import { FavoritesService } from '../favorites/favorites.service';
 
 @Injectable()
 export class ArtistService {
+  constructor(
+    @Inject(forwardRef(() => TrackService))
+    private readonly trackService: TrackService,
+    @Inject(forwardRef(() => AlbumService))
+    private readonly albumService: AlbumService,
+    @Inject(forwardRef(() => FavoritesService))
+    private readonly favoritesService: FavoritesService,
+  ) {}
+
   async createArtist(createDto: CreateArtistDto): Promise<IArtist> {
     if (!createDto.name || !createDto.grammy) {
       throw new BadRequestException(ArtistErrors.INCORRECT_BODY);
@@ -27,12 +41,16 @@ export class ArtistService {
     return newArtist;
   }
 
+  checkArtist(id): IArtist {
+    return db.artists.find((artist) => artist.id === id);
+  }
+
   async getArtistById(id: string): Promise<IArtist> {
     if (!validateUuid(id)) {
       throw new BadRequestException(ArtistErrors.INVALID_ID);
     }
 
-    const condidate = db.artists.find((artist) => artist.id === id);
+    const condidate = this.checkArtist(id);
 
     if (!condidate) {
       throw new NotFoundException(ArtistErrors.NOT_FOUND);
@@ -75,6 +93,9 @@ export class ArtistService {
 
     if (condidateIndex !== -1) {
       db.artists.splice(condidateIndex, 1);
+      this.trackService.deleteRef(id, 'artistId');
+      this.albumService.deleteRef(id);
+      this.favoritesService.deleteRef(id, 'artists');
     } else {
       throw new NotFoundException(ArtistErrors.NOT_FOUND);
     }

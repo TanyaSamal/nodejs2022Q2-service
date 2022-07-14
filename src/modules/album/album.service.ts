@@ -12,12 +12,15 @@ import { AlbumErrors, IAlbum } from './album.interface';
 import { CreateAlbumDto } from './dto/create-album.dto';
 import { UpdateAlbumDto } from './dto/update-album.dto';
 import { TrackService } from '../track/track.service';
+import { FavoritesService } from '../favorites/favorites.service';
 
 @Injectable()
 export class AlbumService {
   constructor(
     @Inject(forwardRef(() => TrackService))
     private readonly trackService: TrackService,
+    @Inject(forwardRef(() => FavoritesService))
+    private readonly favoritesService: FavoritesService,
   ) {}
 
   async createAlbum(createDto: CreateAlbumDto): Promise<IAlbum> {
@@ -31,12 +34,16 @@ export class AlbumService {
     return newAlbum;
   }
 
+  checkAlbum(id): IAlbum {
+    return db.albums.find((album) => album.id === id);
+  }
+
   async getAlbumById(id: string): Promise<IAlbum> {
     if (!validateUuid(id)) {
       throw new BadRequestException(AlbumErrors.INVALID_ID);
     }
 
-    const condidate = db.albums.find((album) => album.id === id);
+    const condidate = this.checkAlbum(id);
 
     if (!condidate) {
       throw new NotFoundException(AlbumErrors.NOT_FOUND);
@@ -70,6 +77,14 @@ export class AlbumService {
     return db.albums[condidateIndex];
   }
 
+  async deleteRef(id: string): Promise<void> {
+    db.albums.map((album) => {
+      if (album.artistId === id) {
+        album.artistId = null;
+      }
+    });
+  }
+
   async deleteAlbum(id: string): Promise<void> {
     if (!validateUuid(id)) {
       throw new BadRequestException(AlbumErrors.INVALID_ID);
@@ -80,6 +95,7 @@ export class AlbumService {
     if (condidateIndex !== -1) {
       db.albums.splice(condidateIndex, 1);
       this.trackService.deleteRef(id, 'albumId');
+      this.favoritesService.deleteRef(id, 'albums');
     } else {
       throw new NotFoundException(AlbumErrors.NOT_FOUND);
     }

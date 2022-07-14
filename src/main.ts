@@ -6,6 +6,7 @@ import { parse } from 'yaml';
 import { readFile } from 'fs/promises';
 import { cwd } from 'process';
 import { config } from 'dotenv';
+import { ValidationPipe } from '@nestjs/common';
 
 config({ path: resolve(cwd(), '.env') });
 
