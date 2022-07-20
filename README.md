@@ -1,63 +1,39 @@
 # Home Library Service
 
-# RSSchool REST service task
+# RSSchool Containerization task
 
 ## Installation
 ```bash
 git clone https://github.com/TanyaSamal/nodejs2022Q2-service
 cd nodejs2022Q2-service
-git checkout develop
-npm install
+git checkout docker
 ```
 
 Don't forget to change .env.example into .env
 
-## Start
+## Docker
+
+Build image and start container in detouched mode:
+
 ```bash
-npm run start
+npm run docker
+```
+or with logs
+
+ ```bash
+docker-compose up --build
+```
+
+Scanning built image:
+
+```bash
+npm run scan
 ```
 
 After starting the app on port (4000 as default) you can open
 in your browser OpenAPI documentation by typing http://localhost:4000/doc/.
-For more information about OpenAPI/Swagger please visit https://swagger.io/.
-
-## Testing
-
-After application running open new terminal and enter:
-
-To run all tests without authorization
-
-```
-npm run test
-```
-
-To run only one of all test suites
-
-```
-npm run test -- <path to suite>
-```
-
-To run all test with authorization
-
-```
-npm run test:auth
-```
-
-To run only specific test suite with authorization
-
-```
-npm run test:auth -- <path to suite>
-```
-
-### Auto-fix and format
-
-```
-npm run lint
-```
-
-```
-npm run format
-```
+You can check live reloading by changing returned text into getHello() function 
+in app.service.ts.
 
 ## Author
 
