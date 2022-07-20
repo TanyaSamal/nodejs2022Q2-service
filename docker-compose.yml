@@ -1,0 +1,43 @@
+version: "3.9"
+services:
+  app:
+    container_name: nodejs-service
+    build: .
+    ports:
+      - ${PORT}:${PORT}
+    depends_on:
+      - postgres
+    volumes:
+      - app:/app/data
+      - ./:/app
+      - ignore:/app/node_modules/
+    networks: 
+      - postgres
+    environment: 
+      PORT: ${PORT}
+      POSTGRES_USER: ${POSTGRES_USER:-user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-GkUkpHK01X16}
+      POSTGRES_DB: ${POSTGRES_PASSWORD:-rest}
+
+  postgres:
+    container_name: postgres-container
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-GkUkpHK01X16}
+      POSTGRES_DB: ${POSTGRES_PASSWORD:-rest}
+      PGDATA: /data/postgres
+    volumes:
+       - postgres:/data/postgres
+    networks:
+      - postgres
+    build: ./db/
+
+networks:
+  postgres:
+    driver: bridge
+
+volumes:
+  app:
+  ignore:
+  postgres:
