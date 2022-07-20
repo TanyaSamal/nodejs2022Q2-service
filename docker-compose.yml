@@ -8,27 +8,29 @@ services:
     depends_on:
       - postgres
     volumes:
-      - app:/app/data
       - ./:/app
       - ignore:/app/node_modules/
     networks: 
       - postgres
     environment: 
-      PORT: ${PORT}
-      POSTGRES_USER: ${POSTGRES_USER:-user}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-GkUkpHK01X16}
-      POSTGRES_DB: ${POSTGRES_PASSWORD:-rest}
+      POSTGRES_USER: ${POSTGRES_USER:-admin}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-123456}
+      POSTGRES_DB: ${POSTGRES_DB:-rest}
+      POSTGRES_PORT: ${POSTGRES_PORT}
+      POSTGRES_HOST: postgres
 
   postgres:
     container_name: postgres-container
     restart: always
     environment:
-      POSTGRES_USER: ${POSTGRES_USER:-user}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-GkUkpHK01X16}
-      POSTGRES_DB: ${POSTGRES_PASSWORD:-rest}
-      PGDATA: /data/postgres
+      POSTGRES_USER: ${POSTGRES_USER:-admin}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-123456}
+      POSTGRES_DB: ${POSTGRES_DB:-rest}
+      PGDATA: /var/lib/postgresql/data
     volumes:
-       - postgres:/data/postgres
+      - postgres:/var/lib/postgresql/data
+    ports:
+      - ${POSTGRES_PORT}:${POSTGRES_PORT}
     networks:
       - postgres
     build: ./db/
@@ -38,6 +40,5 @@ networks:
     driver: bridge
 
 volumes:
-  app:
   ignore:
   postgres:
