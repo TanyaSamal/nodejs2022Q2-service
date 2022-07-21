@@ -47,13 +47,13 @@ export class FavoritesService {
       throw new BadRequestException(FavsErrors.INVALID_ID);
     }
 
-    const condidate = await this.albumService.checkAlbum(id);
+    // const condidate = await this.albumService.checkAlbum(id);
 
-    if (condidate) {
-      db.favs.albums.push(condidate);
-    } else {
-      throw new UnprocessableEntityException(FavsErrors.UNPROCESSABLE_ID);
-    }
+    // if (condidate) {
+    //   db.favs.albums.push(condidate);
+    // } else {
+    //   throw new UnprocessableEntityException(FavsErrors.UNPROCESSABLE_ID);
+    // }
   }
 
   async addArtistToFavs(id: string): Promise<void> {
