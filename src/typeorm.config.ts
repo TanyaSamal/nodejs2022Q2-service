@@ -13,14 +13,14 @@ export const typeOrmConfig: TypeOrmModuleOptions = {
     port: config.get<number>('POSTGRES_PORT'),
     entities: [__dirname + 'dist/**/*.entity{.ts,.js}'],
     autoLoadEntities: true,
-    migrationsRun: false,
+    synchronize: true,
     logging: true,
+    migrationsRun: false,
     migrationsTableName: 'migration',
     migrations: [
       __dirname + '/migration/**/*.ts',
       __dirname + '/migration/**/*.js',
     ],
-    synchronize: false,
     cli: {
       migrationsDir: 'src/migration',
     },
