@@ -6,18 +6,22 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { v4 as uuidv4 } from 'uuid';
-import { db } from '../../data/db';
 import { validateUuid } from 'src/utils';
 import { ITrack, TrackErrors } from './track.interface';
 import { CreateTrackDto } from './dto/create-track.dto';
 import { UpdateTrackDto } from './dto/update-track.dto';
 import { FavoritesService } from '../favorites/favorites.service';
+import { TrackEntity } from './entities/track.entity';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class TrackService {
   constructor(
     @Inject(forwardRef(() => FavoritesService))
     private readonly favoritesService: FavoritesService,
+    @InjectRepository(TrackEntity)
+    private readonly trackRepository: Repository<TrackEntity>,
   ) {}
 
   async createTrack(createDto: CreateTrackDto): Promise<ITrack> {
@@ -26,21 +30,19 @@ export class TrackService {
       ...createDto,
     };
 
-    db.tracks.push(newTrack);
+    const createdTrack = this.trackRepository.create(newTrack);
 
-    return newTrack;
+    return await this.trackRepository.save(createdTrack);
   }
 
-  checkTrack(id): ITrack {
-    return db.tracks.find((track) => track.id === id);
-  }
-
-  async getTrackById(id: string): Promise<ITrack> {
-    if (!validateUuid(id)) {
+  async getTrackById(trackId: string): Promise<ITrack> {
+    if (!validateUuid(trackId)) {
       throw new BadRequestException(TrackErrors.INVALID_ID);
     }
 
-    const condidate = this.checkTrack(id);
+    const condidate = await this.trackRepository.findOne({
+      where: { id: trackId },
+    });
 
     if (!condidate) {
       throw new NotFoundException(TrackErrors.NOT_FOUND);
@@ -50,50 +52,45 @@ export class TrackService {
   }
 
   async getAllTracks(): Promise<ITrack[]> {
-    return db.tracks;
+    return await this.trackRepository.find();
   }
 
-  async updateTrack(dto: UpdateTrackDto, id: string): Promise<ITrack> {
+  async updateTrack(dto: UpdateTrackDto, trackId: string): Promise<ITrack> {
     if (typeof dto.duration !== 'number' || typeof dto.name !== 'string') {
       throw new BadRequestException(TrackErrors.INCORRECT_BODY);
     }
 
-    if (!validateUuid(id)) {
+    if (!validateUuid(trackId)) {
       throw new BadRequestException(TrackErrors.INVALID_ID);
     }
 
-    const condidateIndex = db.tracks.findIndex((track) => track.id === id);
+    const condidate = await this.trackRepository.findOne({
+      where: { id: trackId },
+    });
 
-    if (condidateIndex !== -1) {
-      const oldData = db.tracks[condidateIndex];
-      db.tracks[condidateIndex] = { ...oldData, ...dto };
+    if (condidate) {
+      await this.trackRepository.update(
+        { id: trackId },
+        { ...condidate, ...dto },
+      );
+      return await this.getTrackById(trackId);
     } else {
       throw new NotFoundException(TrackErrors.NOT_FOUND);
     }
-
-    return db.tracks[condidateIndex];
   }
 
-  async deleteRef(id: string, field: string): Promise<void> {
-    if (field === 'artistId' || field === 'albumId') {
-      db.tracks.map((track) => {
-        if (track[field] === id) {
-          track[field] = null;
-        }
-      });
-    }
-  }
-
-  async deleteTrack(id: string): Promise<void> {
-    if (!validateUuid(id)) {
+  async deleteTrack(trackId: string): Promise<void> {
+    if (!validateUuid(trackId)) {
       throw new BadRequestException(TrackErrors.INVALID_ID);
     }
 
-    const condidateIndex = db.tracks.findIndex((track) => track.id === id);
+    const condidate = await this.trackRepository.findOne({
+      where: { id: trackId },
+    });
 
-    if (condidateIndex !== -1) {
-      db.tracks.splice(condidateIndex, 1);
-      this.favoritesService.deleteRef(id, 'tracks');
+    if (condidate) {
+      await this.trackRepository.delete(trackId);
+      // this.favoritesService.deleteRef(id, 'tracks');
     } else {
       throw new NotFoundException(TrackErrors.NOT_FOUND);
     }

@@ -33,13 +33,13 @@ export class FavoritesService {
       throw new BadRequestException(FavsErrors.INVALID_ID);
     }
 
-    const condidate = await this.trackService.checkTrack(id);
+    // const condidate = await this.trackService.checkTrack(id);
 
-    if (condidate) {
-      db.favs.tracks.push(condidate);
-    } else {
-      throw new UnprocessableEntityException(FavsErrors.UNPROCESSABLE_ID);
-    }
+    // if (condidate) {
+    //   db.favs.tracks.push(condidate);
+    // } else {
+    //   throw new UnprocessableEntityException(FavsErrors.UNPROCESSABLE_ID);
+    // }
   }
 
   async addAlbumToFavs(id: string): Promise<void> {
