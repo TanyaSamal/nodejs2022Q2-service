@@ -4,58 +4,60 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { UserEntity } from './entities/user.entity';
+import { Repository } from 'typeorm';
 import { v4 as uuidv4 } from 'uuid';
 import { CreateUserDto } from './dto/create-user.dto';
 import { IUser, UserErrors } from './user.interface';
-import { db } from '../../data/db';
 import { UpdatePasswordDto } from './dto/update-password.dto';
 import { validateUuid } from 'src/utils';
 
 @Injectable()
 export class UserService {
+  constructor(
+    @InjectRepository(UserEntity)
+    private readonly userRepository: Repository<UserEntity>,
+  ) {}
+
   async createUser(createDto: CreateUserDto): Promise<IUser> {
     if (!createDto.login || !createDto.password) {
       throw new BadRequestException(UserErrors.INCORRECT_BODY);
     }
 
-    const newUser: IUser = {
+    const newUser = {
       id: uuidv4(),
       ...createDto,
       version: 1,
-      createdAt: Date.now(),
-      updatedAt: Date.now(),
     };
 
-    db.users.push(newUser);
+    const createdUser = this.userRepository.create(newUser);
 
-    const responce: IUser = { ...newUser };
-    delete responce.password;
-
-    return responce;
+    return (await this.userRepository.save(createdUser)).toResponse();
   }
 
-  async getUserById(id: string): Promise<IUser> {
-    if (!validateUuid(id)) {
+  async getUserById(userId: string): Promise<IUser> {
+    if (!validateUuid(userId)) {
       throw new BadRequestException(UserErrors.INVALID_ID);
     }
 
-    const condidate = db.users.find((user) => user.id === id);
+    const condidate = await this.userRepository.findOne({
+      where: { id: userId },
+    });
 
     if (!condidate) {
       throw new NotFoundException(UserErrors.NOT_FOUND);
     }
 
-    const responce: IUser = { ...condidate };
-    delete responce.password;
-
-    return responce;
+    return condidate.toResponse();
   }
 
   async getAllUsers(): Promise<IUser[]> {
-    return db.users;
+    const users = await this.userRepository.find();
+    return users.map((user) => user.toResponse());
   }
 
-  async updateUser(dto: UpdatePasswordDto, id: string): Promise<IUser> {
+  async updateUser(dto: UpdatePasswordDto, userId: string): Promise<IUser> {
     if (
       dto.newPassword === dto.oldPassword ||
       !dto.newPassword ||
@@ -64,39 +66,38 @@ export class UserService {
       throw new BadRequestException(UserErrors.INCORRECT_BODY);
     }
 
-    if (!validateUuid(id)) {
+    if (!validateUuid(userId)) {
       throw new BadRequestException(UserErrors.INVALID_ID);
     }
 
-    const condidateIndex = db.users.findIndex((user) => user.id === id);
+    const condidate = await this.userRepository.findOne({
+      where: { id: userId },
+    });
 
-    if (condidateIndex !== -1) {
-      if (db.users[condidateIndex].password === dto.oldPassword) {
-        db.users[condidateIndex].password = dto.newPassword;
-        db.users[condidateIndex].version += 1;
-        db.users[condidateIndex].updatedAt = Date.now();
+    if (condidate) {
+      if (condidate.password === dto.oldPassword) {
+        condidate.password = dto.newPassword;
+        condidate.version += 1;
+        return (await this.userRepository.save(condidate)).toResponse();
       } else {
         throw new ForbiddenException(UserErrors.WRONG_OLD_PASSWORD);
       }
     } else {
       throw new NotFoundException(UserErrors.NOT_FOUND);
     }
-
-    const responce: IUser = { ...db.users[condidateIndex] };
-    delete responce.password;
-
-    return responce;
   }
 
-  async deleteUser(id: string): Promise<void> {
-    if (!validateUuid(id)) {
+  async deleteUser(userId: string): Promise<void> {
+    if (!validateUuid(userId)) {
       throw new BadRequestException(UserErrors.INVALID_ID);
     }
 
-    const condidateIndex = db.users.findIndex((user) => user.id === id);
+    const condidate = await this.userRepository.findOne({
+      where: { id: userId },
+    });
 
-    if (condidateIndex !== -1) {
-      db.users.splice(condidateIndex, 1);
+    if (condidate) {
+      await this.userRepository.delete(userId);
     } else {
       throw new NotFoundException(UserErrors.NOT_FOUND);
     }
