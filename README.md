@@ -1,72 +1,42 @@
 # Home Library Service
 
-## Prerequisites
+# RSSchool Containerization task
 
-- Git - [Download & Install Git](https://git-scm.com/downloads).
-- Node.js - [Download & Install Node.js](https://nodejs.org/en/download/) and the npm package manager.
-
-## Downloading
-
-```
-git clone {repository URL}
+## Installation
+```bash
+git clone https://github.com/TanyaSamal/nodejs2022Q2-service
+cd nodejs2022Q2-service
+git checkout docker
 ```
 
-## Installing NPM modules
+Don't forget to change .env.example into .env
 
+## Docker
+
+Build image and start container in detouched mode:
+
+```bash
+npm run docker
 ```
-npm install
+or with logs
+
+ ```bash
+docker-compose up --build
 ```
 
-## Running application
+Scanning built image:
 
-```
-npm start
+```bash
+npm run scan
 ```
 
 After starting the app on port (4000 as default) you can open
 in your browser OpenAPI documentation by typing http://localhost:4000/doc/.
-For more information about OpenAPI/Swagger please visit https://swagger.io/.
+You can check live reloading by changing returned text into getHello() function 
+in app.service.ts.
 
-## Testing
+## Author
 
-After application running open new terminal and enter:
+👤 **Tanya Samal**
 
-To run all tests without authorization
-
-```
-npm run test
-```
-
-To run only one of all test suites
-
-```
-npm run test -- <path to suite>
-```
-
-To run all test with authorization
-
-```
-npm run test:auth
-```
-
-To run only specific test suite with authorization
-
-```
-npm run test:auth -- <path to suite>
-```
-
-### Auto-fix and format
-
-```
-npm run lint
-```
-
-```
-npm run format
-```
-
-### Debugging in VSCode
-
-Press <kbd>F5</kbd> to debug.
-
-For more information, visit: https://code.visualstudio.com/docs/editor/debugging
+- Discord: `Tanya Samal(@tanyasamal)`
