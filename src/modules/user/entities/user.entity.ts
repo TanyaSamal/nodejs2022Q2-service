@@ -22,12 +22,20 @@ export class UserEntity {
   @Column()
   version: number;
 
-  @CreateDateColumn()
-  @Transform(({ value }) => +new Date(value))
+  @CreateDateColumn({
+    transformer: {
+      to: (value: Date) => value,
+      from: (value: Date) => value.getTime(),
+    }
+  })
   createdAt: number;
 
-  @UpdateDateColumn()
-  @Transform(({ value }) => +new Date(value))
+  @UpdateDateColumn({
+    transformer: {
+      to: (value: Date) => value,
+      from: (value: Date) => value.getTime(),
+    }
+  })
   updatedAt: number;
 
   toResponse() {

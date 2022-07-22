@@ -28,6 +28,10 @@ export class AlbumService {
   ) {}
 
   async createAlbum(createDto: CreateAlbumDto): Promise<IAlbum> {
+    if (!createDto.name || !createDto.year) {
+      throw new BadRequestException(AlbumErrors.INCORRECT_BODY);
+    }
+
     const newAlbum: IAlbum = {
       id: uuidv4(),
       ...createDto,
@@ -93,10 +97,19 @@ export class AlbumService {
 
     if (condidate) {
       await this.albumRepository.delete(albumId);
-      // this.trackService.deleteRef(id, 'albumId');
+      await this.updateRelatedTrack(albumId);
       // this.favoritesService.deleteRef(id, 'albums');
     } else {
       throw new NotFoundException(AlbumErrors.NOT_FOUND);
+    }
+  }
+
+  async updateRelatedTrack(albumId: string) {
+    const tracks = await this.trackService.getAllTracks();
+    const updatedTrack = tracks.find((track) => track.albumId === albumId);
+    if (updatedTrack) {
+      updatedTrack.albumId = null;
+      this.trackService.updateTrack(updatedTrack, updatedTrack.id);
     }
   }
 }

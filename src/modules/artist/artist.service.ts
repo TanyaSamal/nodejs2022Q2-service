@@ -100,11 +100,29 @@ export class ArtistService {
 
     if (condidate) {
       await this.artistRepository.delete(artistId);
-      // this.trackService.deleteRef(artistId, 'artistId');
-      // this.albumService.deleteRef(artistId);
+      await this.updateRelatedTrack(artistId);
+      await this.updateRelatedAlbum(artistId);
       // this.favoritesService.deleteRef(artistId, 'artists');
     } else {
       throw new NotFoundException(ArtistErrors.NOT_FOUND);
+    }
+  }
+
+  async updateRelatedTrack(artistId: string) {
+    const tracks = await this.trackService.getAllTracks();
+    const updatedTrack = tracks.find((track) => track.artistId === artistId);
+    if (updatedTrack) {
+      updatedTrack.artistId = null;
+      this.trackService.updateTrack(updatedTrack, updatedTrack.id);
+    }
+  }
+
+  async updateRelatedAlbum(artistId: string) {
+    const albums = await this.albumService.getAllAlbums();
+    const updatedAlbum = albums.find((album) => album.artistId === artistId);
+    if (updatedAlbum) {
+      updatedAlbum.artistId = null;
+      this.albumService.updateAlbum(updatedAlbum, updatedAlbum.id);
     }
   }
 }
