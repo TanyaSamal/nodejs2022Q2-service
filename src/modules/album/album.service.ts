@@ -42,14 +42,18 @@ export class AlbumService {
     return await this.albumRepository.save(createdAlbum);
   }
 
+  async getCondidate(condidateId: string): Promise<IAlbum> {
+    return await this.albumRepository.findOne({
+      where: { id: condidateId },
+    });
+  }
+
   async getAlbumById(albumId: string): Promise<IAlbum> {
     if (!validateUuid(albumId)) {
       throw new BadRequestException(AlbumErrors.INVALID_ID);
     }
 
-    const condidate = await this.albumRepository.findOne({
-      where: { id: albumId },
-    });
+    const condidate = await this.getCondidate(albumId);
 
     if (!condidate) {
       throw new NotFoundException(AlbumErrors.NOT_FOUND);
@@ -71,9 +75,7 @@ export class AlbumService {
       throw new BadRequestException(AlbumErrors.INVALID_ID);
     }
 
-    const condidate = await this.albumRepository.findOne({
-      where: { id: albumId },
-    });
+    const condidate = await this.getCondidate(albumId);
 
     if (condidate) {
       await this.albumRepository.update(
@@ -91,9 +93,7 @@ export class AlbumService {
       throw new BadRequestException(AlbumErrors.INVALID_ID);
     }
 
-    const condidate = await this.albumRepository.findOne({
-      where: { id: albumId },
-    });
+    const condidate = await this.getCondidate(albumId);
 
     if (condidate) {
       await this.albumRepository.delete(albumId);

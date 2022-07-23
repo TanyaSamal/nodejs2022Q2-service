@@ -8,6 +8,12 @@ export interface FavoritesRepsonse {
   tracks: ITrack[];
 }
 
+export interface AllFavs {
+  artists: string;
+  albums: string;
+  tracks: string;
+}
+
 export enum FavsErrors {
   INCORRECT_BODY = 'Request body does not contain required fields',
   NOT_FOUND = 'Entity with this ID is not favorite',

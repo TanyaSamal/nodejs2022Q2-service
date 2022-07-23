@@ -45,14 +45,18 @@ export class ArtistService {
     return await this.artistRepository.save(createdArtist);
   }
 
+  async getCondidate(condidateId: string): Promise<IArtist> {
+    return await this.artistRepository.findOne({
+      where: { id: condidateId },
+    });
+  }
+
   async getArtistById(artistId: string): Promise<IArtist> {
     if (!validateUuid(artistId)) {
       throw new BadRequestException(ArtistErrors.INVALID_ID);
     }
 
-    const condidate = await this.artistRepository.findOne({
-      where: { id: artistId },
-    });
+    const condidate = await this.getCondidate(artistId);
 
     if (!condidate) {
       throw new NotFoundException(ArtistErrors.NOT_FOUND);
@@ -74,9 +78,7 @@ export class ArtistService {
       throw new BadRequestException(ArtistErrors.INVALID_ID);
     }
 
-    const condidate = await this.artistRepository.findOne({
-      where: { id: artistId },
-    });
+    const condidate = await this.getCondidate(artistId);
 
     if (condidate) {
       await this.artistRepository.update(
@@ -94,9 +96,7 @@ export class ArtistService {
       throw new BadRequestException(ArtistErrors.INVALID_ID);
     }
 
-    const condidate = await this.artistRepository.findOne({
-      where: { id: artistId },
-    });
+    const condidate = await this.getCondidate(artistId);
 
     if (condidate) {
       await this.artistRepository.delete(artistId);

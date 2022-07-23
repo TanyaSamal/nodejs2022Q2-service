@@ -31,7 +31,7 @@ export class UserService {
       version: 1,
     };
 
-    const createdUser = this.userRepository.create(newUser);
+    const createdUser = await this.userRepository.create(newUser);
 
     return (await this.userRepository.save(createdUser)).toResponse();
   }

@@ -35,14 +35,18 @@ export class TrackService {
     return await this.trackRepository.save(createdTrack);
   }
 
+  async getCondidate(condidateId: string): Promise<ITrack> {
+    return await this.trackRepository.findOne({
+      where: { id: condidateId },
+    });
+  }
+
   async getTrackById(trackId: string): Promise<ITrack> {
     if (!validateUuid(trackId)) {
       throw new BadRequestException(TrackErrors.INVALID_ID);
     }
 
-    const condidate = await this.trackRepository.findOne({
-      where: { id: trackId },
-    });
+    const condidate = await this.getCondidate(trackId);
 
     if (!condidate) {
       throw new NotFoundException(TrackErrors.NOT_FOUND);
@@ -64,9 +68,7 @@ export class TrackService {
       throw new BadRequestException(TrackErrors.INVALID_ID);
     }
 
-    const condidate = await this.trackRepository.findOne({
-      where: { id: trackId },
-    });
+    const condidate = await this.getCondidate(trackId);
 
     if (condidate) {
       await this.trackRepository.update(
@@ -84,9 +86,7 @@ export class TrackService {
       throw new BadRequestException(TrackErrors.INVALID_ID);
     }
 
-    const condidate = await this.trackRepository.findOne({
-      where: { id: trackId },
-    });
+    const condidate = await this.getCondidate(trackId);
 
     if (condidate) {
       await this.trackRepository.delete(trackId);
