@@ -7,7 +7,6 @@ import {
   UnprocessableEntityException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { db } from 'src/data/db';
 import { validateUuid } from 'src/utils';
 import { Repository } from 'typeorm';
 import { AlbumService } from '../album/album.service';
@@ -193,15 +192,6 @@ export class FavoritesService {
       await this.favRepository.save(allFavs);
     } else {
       throw new NotFoundException(FavsErrors.NOT_FOUND);
-    }
-  }
-
-  async deleteRef(id: string, field: string) {
-    if (field === 'artists' || field === 'albums' || field === 'tracks') {
-      const ref = db.favs[field].findIndex((entity) => entity.id === id);
-      if (ref !== -1) {
-        db.favs[field].splice(ref, 1);
-      }
     }
   }
 }

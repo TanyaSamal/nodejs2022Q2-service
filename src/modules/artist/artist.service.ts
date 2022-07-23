@@ -102,7 +102,6 @@ export class ArtistService {
       await this.artistRepository.delete(artistId);
       await this.updateRelatedTrack(artistId);
       await this.updateRelatedAlbum(artistId);
-      // this.favoritesService.deleteRef(artistId, 'artists');
     } else {
       throw new NotFoundException(ArtistErrors.NOT_FOUND);
     }

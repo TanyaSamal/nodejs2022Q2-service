@@ -90,7 +90,6 @@ export class TrackService {
 
     if (condidate) {
       await this.trackRepository.delete(trackId);
-      // this.favoritesService.deleteRef(id, 'tracks');
     } else {
       throw new NotFoundException(TrackErrors.NOT_FOUND);
     }

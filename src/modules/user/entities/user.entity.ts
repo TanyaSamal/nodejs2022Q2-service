@@ -1,4 +1,4 @@
-import { Exclude, Transform } from 'class-transformer';
+import { Exclude } from 'class-transformer';
 import {
   Column,
   CreateDateColumn,
@@ -26,7 +26,7 @@ export class UserEntity {
     transformer: {
       to: (value: Date) => value,
       from: (value: Date) => value.getTime(),
-    }
+    },
   })
   createdAt: number;
 
@@ -34,7 +34,7 @@ export class UserEntity {
     transformer: {
       to: (value: Date) => value,
       from: (value: Date) => value.getTime(),
-    }
+    },
   })
   updatedAt: number;
 

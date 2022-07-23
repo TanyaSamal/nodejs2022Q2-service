@@ -98,7 +98,6 @@ export class AlbumService {
     if (condidate) {
       await this.albumRepository.delete(albumId);
       await this.updateRelatedTrack(albumId);
-      // this.favoritesService.deleteRef(id, 'albums');
     } else {
       throw new NotFoundException(AlbumErrors.NOT_FOUND);
     }
