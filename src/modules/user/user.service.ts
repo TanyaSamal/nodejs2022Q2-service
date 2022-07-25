@@ -11,7 +11,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { CreateUserDto } from './dto/create-user.dto';
 import { IUser, UserErrors } from './user.interface';
 import { UpdatePasswordDto } from './dto/update-password.dto';
-import { validateUuid } from 'src/utils';
+import { validateUuid } from 'src/utils/utils';
 
 @Injectable()
 export class UserService {

@@ -8,7 +8,7 @@ import {
 import { v4 as uuidv4 } from 'uuid';
 import { IArtist, ArtistErrors } from './artist.interface';
 import { CreateArtistDto } from './dto/create-artist.dto';
-import { validateUuid } from 'src/utils';
+import { validateUuid } from 'src/utils/utils';
 import { UpdateArtistDto } from './dto/update-artist.dto';
 import { TrackService } from '../track/track.service';
 import { AlbumService } from '../album/album.service';

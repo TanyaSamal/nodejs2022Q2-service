@@ -7,7 +7,7 @@ import {
   UnprocessableEntityException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { validateUuid } from 'src/utils';
+import { validateUuid } from 'src/utils/utils';
 import { Repository } from 'typeorm';
 import { AlbumService } from '../album/album.service';
 import { ArtistService } from '../artist/artist.service';
