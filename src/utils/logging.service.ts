@@ -1,23 +1,84 @@
-import { Injectable, Logger, NestMiddleware } from '@nestjs/common';
-import { Request, Response, NextFunction } from 'express';
+import { LoggerService } from '@nestjs/common';
+import { utilities as nestWinstonModuleUtilities } from 'nest-winston';
+import { dirname, join } from 'path';
+import * as winston from 'winston';
+import * as dotenv from 'dotenv';
+import { LOG_LEVELS } from './consts';
 
-@Injectable()
-export class LoggingService implements NestMiddleware {
-  private logger = new Logger('HTTP');
+dotenv.config();
+const loggerLevel = process.env.LOG_LEVEL || 2;
+const rootDirname = dirname(__dirname);
 
-  use(request: Request, response: Response, next: NextFunction): void {
-    const { body, method, originalUrl, query } = request;
+const { errors, combine, json, timestamp, ms, prettyPrint } = winston.format;
 
-    response.on('finish', () => {
-      const { statusCode } = response;
+export class LoggingService implements LoggerService {
+  private logger: winston.Logger;
 
-      this.logger.log(
-        `${method} ${originalUrl} ${statusCode} - body: ${JSON.stringify(
-          body,
-        )} query params: ${JSON.stringify(query)}`,
-      );
+  constructor(service?) {
+    this.logger = winston.createLogger({
+      format: combine(
+        errors({ stack: true }),
+        json(),
+        timestamp({ format: 'isoDateTime' }),
+        ms(),
+        prettyPrint(),
+      ),
+      defaultMeta: { service },
+      transports: [
+        new winston.transports.File({
+          level: 'error',
+          filename: `error.log`,
+          dirname: join(rootDirname, './../logs/'),
+          maxsize: 5000000,
+        }),
+        new winston.transports.Console({
+          level: 'debug',
+          format: combine(nestWinstonModuleUtilities.format.nestLike()),
+        }),
+
+        new winston.transports.File({
+          level: 'info',
+          filename: `combined.log`,
+          dirname: join(rootDirname, './../logs/'),
+          maxsize: 5000000,
+        }),
+      ],
+      exceptionHandlers: [
+        new winston.transports.File({
+          level: 'error',
+          filename: 'exception.log',
+          dirname: join(rootDirname, './../logs/'),
+          maxsize: 5000000,
+        }),
+      ],
+      rejectionHandlers: [
+        new winston.transports.File({
+          level: 'error',
+          filename: 'rejections.log',
+          dirname: join(rootDirname, './../logs/'),
+          maxsize: 5000000,
+        }),
+      ],
     });
+  }
 
-    next();
+  log(message: string) {
+    if (loggerLevel >= LOG_LEVELS.info) this.logger.info(message);
+  }
+
+  error(message: string, trace: string) {
+    if (loggerLevel >= LOG_LEVELS.error) this.logger.error(message, trace);
+  }
+
+  warn(message: string) {
+    if (loggerLevel >= LOG_LEVELS.warn) this.logger.warning(message);
+  }
+
+  debug(message: string) {
+    if (loggerLevel >= LOG_LEVELS.debug) this.logger.debug(message);
+  }
+
+  verbose(message: string) {
+    if (loggerLevel >= LOG_LEVELS.verbose) this.logger.verbose(message);
   }
 }

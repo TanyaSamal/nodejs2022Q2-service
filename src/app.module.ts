@@ -8,7 +8,7 @@ import { FavoritesModule } from './modules/favorites/favorites.module';
 import { TrackModule } from './modules/track/track.module';
 import { UserModule } from './modules/user/user.module';
 import { typeOrmConfig } from './typeorm.config';
-import { LoggingService } from './utils/logging.service';
+import { LoggingMiddlware } from './utils/logging.middlware';
 
 @Module({
   imports: [
@@ -24,6 +24,6 @@ import { LoggingService } from './utils/logging.service';
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(LoggingService).forRoutes('*');
+    consumer.apply(LoggingMiddlware).forRoutes('*');
   }
 }
