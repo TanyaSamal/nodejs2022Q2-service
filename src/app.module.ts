@@ -4,6 +4,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AlbumModule } from './modules/album/album.module';
 import { ArtistModule } from './modules/artist/artist.module';
+import { AuthModule } from './modules/auth/auth.module';
 import { FavoritesModule } from './modules/favorites/favorites.module';
 import { TrackModule } from './modules/track/track.module';
 import { UserModule } from './modules/user/user.module';
@@ -17,6 +18,7 @@ import { LoggingMiddlware } from './utils/logging.middlware';
     TrackModule,
     AlbumModule,
     FavoritesModule,
+    AuthModule,
     TypeOrmModule.forRootAsync(typeOrmConfig),
   ],
   controllers: [AppController],
