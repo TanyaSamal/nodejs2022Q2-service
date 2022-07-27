@@ -4,6 +4,7 @@ import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { IUser } from '../user/user.interface';
 import { AuthService } from './auth.service';
+import { AuthErrors } from './consts';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
@@ -22,7 +23,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     const user = await this.authService.validateUser(login, password);
 
     if (!user) {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException(AuthErrors.UNAUTHORIZED);
     }
 
     return user;

@@ -54,7 +54,7 @@ export class UserService {
 
   async getAllUsers(): Promise<IUser[]> {
     const users = await this.userRepository.find();
-    return users.map((user) => user.toResponse());
+    return users;
   }
 
   async updateUser(dto: UpdatePasswordDto, userId: string): Promise<IUser> {

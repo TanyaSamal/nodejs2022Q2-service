@@ -1,7 +1,12 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { IUser } from '../user/user.interface';
 import { UserService } from '../user/user.service';
+import { AuthErrors } from './consts';
 import { AuthCredentialsDto } from './dto/auth-credentials.dto';
 
 @Injectable()
@@ -11,20 +16,29 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async signin(
+  async signup(authCredentialsDto: AuthCredentialsDto): Promise<IUser> {
+    return this.userService.createUser(authCredentialsDto);
+  }
+
+  async login(
     authCredentialsDto: AuthCredentialsDto,
   ): Promise<{ token: string }> {
-    const login: string = authCredentialsDto.login;
+    const { login, password } = authCredentialsDto;
+    if (!login || !password) {
+      throw new BadRequestException(AuthErrors.INCORRECT_BODY);
+    }
+
     const allUsers = await this.userService.getAllUsers();
     const user = allUsers.find((user) => user.login === login);
 
-    if (user) {
-      const payload = { username: user.login, sub: user.id };
+    if (user && user.password === password) {
+      const payload = { login: user.login, userId: user.id };
+
       return {
         token: this.jwtService.sign(payload),
       };
     } else {
-      throw new UnauthorizedException('Incorrect login credentials!');
+      throw new ForbiddenException(AuthErrors.INVALID_CREDENTIALS);
     }
   }
 
