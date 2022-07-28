@@ -7,13 +7,16 @@ import {
   Post,
   Body,
   Delete,
+  UseGuards,
 } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 import { IAlbum } from './album.interface';
 import { AlbumService } from './album.service';
 import { CreateAlbumDto } from './dto/create-album.dto';
 import { UpdateAlbumDto } from './dto/update-album.dto';
 
 @Controller('album')
+@UseGuards(AuthGuard('jwt'))
 export class AlbumController {
   constructor(private readonly albumService: AlbumService) {}
 

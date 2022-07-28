@@ -17,7 +17,7 @@ export class LoggingMiddlware implements NestMiddleware {
       const { statusCode } = response;
 
       if (body.password) {
-        body.password = await bcrypt.hash(body.password, Number(salt));
+        body.password = await bcrypt.hash(String(body.password), Number(salt));
       }
 
       logger.log(

@@ -4,6 +4,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import * as bcrypt from 'bcrypt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from './entities/user.entity';
 import { Repository } from 'typeorm';
@@ -12,16 +13,23 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { IUser, UserErrors } from './user.interface';
 import { UpdatePasswordDto } from './dto/update-password.dto';
 import { validateUuid } from 'src/utils/utils';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(UserEntity)
     private readonly userRepository: Repository<UserEntity>,
+    private configService: ConfigService,
   ) {}
 
   async createUser(createDto: CreateUserDto): Promise<IUser> {
-    if (!createDto.login || !createDto.password) {
+    if (
+      !createDto.login ||
+      !createDto.password ||
+      typeof createDto.login !== 'string' ||
+      typeof createDto.password !== 'string'
+    ) {
       throw new BadRequestException(UserErrors.INCORRECT_BODY);
     }
 
@@ -73,10 +81,10 @@ export class UserService {
     const condidate = await this.userRepository.findOne({
       where: { id: userId },
     });
-
+    console.log('condidate - ', condidate);
     if (condidate) {
-      if (condidate.password === dto.oldPassword) {
-        condidate.password = dto.newPassword;
+      if (await bcrypt.compare(dto.oldPassword, condidate.password)) {
+        condidate.password = await this.hashPassword(dto.newPassword);
         condidate.version += 1;
         return (await this.userRepository.save(condidate)).toResponse();
       } else {
@@ -101,5 +109,12 @@ export class UserService {
     } else {
       throw new NotFoundException(UserErrors.NOT_FOUND);
     }
+  }
+
+  private async hashPassword(password: string): Promise<string> {
+    return await bcrypt.hash(
+      String(password),
+      Number(this.configService.get('CRYPT_SALT')),
+    );
   }
 }

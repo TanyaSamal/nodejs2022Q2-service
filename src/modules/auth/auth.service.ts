@@ -2,6 +2,7 @@ import {
   BadRequestException,
   ForbiddenException,
   Injectable,
+  UnauthorizedException,
 } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
@@ -23,7 +24,7 @@ export class AuthService {
 
   async login(
     authCredentialsDto: AuthCredentialsDto,
-  ): Promise<{ token: string }> {
+  ): Promise<{ accessToken: string }> {
     const { login, password } = authCredentialsDto;
     if (!login || !password) {
       throw new BadRequestException(AuthErrors.INCORRECT_BODY);
@@ -36,23 +37,21 @@ export class AuthService {
       const payload = { login: user.login, userId: user.id };
 
       return {
-        token: this.jwtService.sign(payload),
+        accessToken: this.jwtService.sign(payload),
       };
     } else {
       throw new ForbiddenException(AuthErrors.INVALID_CREDENTIALS);
     }
   }
 
-  async validateUser(login: string, pass: string): Promise<IUser> {
-    const allUsers = await this.userService.getAllUsers();
-    const user = allUsers.find((user) => user.login === login);
+  async validateUser(userId: string): Promise<IUser> {
+    const user = await this.userService.getUserById(userId);
 
-    if (user && this.validatePassword(pass, user.password)) {
-      const { password, ...result } = user;
-      return result;
+    if (!user) {
+      throw new UnauthorizedException(AuthErrors.UNAUTHORIZED);
     }
 
-    return null;
+    return user;
   }
 
   async validatePassword(
