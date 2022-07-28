@@ -3,6 +3,7 @@ import {
   ForbiddenException,
   Injectable,
 } from '@nestjs/common';
+import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { IUser } from '../user/user.interface';
 import { UserService } from '../user/user.service';
@@ -31,7 +32,7 @@ export class AuthService {
     const allUsers = await this.userService.getAllUsers();
     const user = allUsers.find((user) => user.login === login);
 
-    if (user && user.password === password) {
+    if (user && this.validatePassword(password, user.password)) {
       const payload = { login: user.login, userId: user.id };
 
       return {
@@ -46,11 +47,18 @@ export class AuthService {
     const allUsers = await this.userService.getAllUsers();
     const user = allUsers.find((user) => user.login === login);
 
-    if (user && user.password === pass) {
+    if (user && this.validatePassword(pass, user.password)) {
       const { password, ...result } = user;
       return result;
     }
 
     return null;
+  }
+
+  async validatePassword(
+    password: string,
+    userPassword: string,
+  ): Promise<boolean> {
+    return await bcrypt.compareSync(password, userPassword);
   }
 }

@@ -1,11 +1,17 @@
 import { Exclude } from 'class-transformer';
+import * as bcrypt from 'bcrypt';
 import {
+  BeforeInsert,
   Column,
   CreateDateColumn,
   Entity,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import * as dotenv from 'dotenv';
+
+dotenv.config();
+const salt = process.env.CRYPT_SALT || 10;
 
 @Entity('user')
 export class UserEntity {
@@ -37,6 +43,11 @@ export class UserEntity {
     },
   })
   updatedAt: number;
+
+  @BeforeInsert()
+  async hashPassword() {
+    this.password = await bcrypt.hash(this.password, Number(salt));
+  }
 
   toResponse() {
     const { id, login, version, createdAt, updatedAt } = this;
