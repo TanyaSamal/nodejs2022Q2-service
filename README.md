@@ -6,7 +6,7 @@
 ```bash
 git clone https://github.com/TanyaSamal/nodejs2022Q2-service
 cd nodejs2022Q2-service
-git checkout orm
+git checkout logging
 ```
 
 Don't forget to change .env.example into .env
@@ -43,9 +43,9 @@ npm run test -- test/favorites.e2e-spec.ts
 
 ## I recommend you to test each suite separately because I had a timeout error when start all tests at once (thrown: "Exceeded timeout of 5000 ms for a test."). One by one they all pass.
 
-After each request you can see its log in the "logs" folder (file "combined.log"). If there is an error it will be written in the error.log file inside.
+After each request you can see its log in the "logs" folder. If there is an error it will be written in the error.log file inside.
 
-You can change count of logging levels in the .env file. Log example:
+You can change count of logging levels and max file size in the .env file. Log example:
 
 ```bash
 {

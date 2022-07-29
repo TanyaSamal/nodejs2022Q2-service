@@ -7,6 +7,7 @@ import { readFile } from 'fs/promises';
 import { cwd } from 'process';
 import { config } from 'dotenv';
 import { HttpExceptionFilter } from './utils/exception.filter';
+import { LoggingService } from './utils/logging.service';
 
 config({ path: resolve(cwd(), '.env') });
 
@@ -23,17 +24,25 @@ async function bootstrap() {
 
   SwaggerModule.setup('doc', app, document);
 
-  process.on('uncaughtExceptionMonitor', (error: Error) => {
-    console.error(`captured error: ${error.message}`);
-    process.exit(1);
-  });
-
-  process.on('unhandledRejection', (reason: Error, promise) => {
-    console.log('Unhandled Rejection at:', promise, 'reason:', reason.message);
-    process.exit(1);
-  });
-
   await app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 }
+
+process.on('uncaughtExceptionMonitor', (error: Error) => {
+  const logger = new LoggingService('unhandledRejection');
+  logger.error(`Captured error: ${error.message}`, error.stack);
+  process.exit(1);
+});
+
+process.on('unhandledRejection', (reason: Error) => {
+  const logger = new LoggingService('unhandledRejection');
+  logger.error(
+    `Unhandled Rejection at Promise: ${reason.message}`,
+    reason.stack,
+  );
+  process.exit(1);
+});
+
+process.removeAllListeners('uncaughtException');
+process.removeAllListeners('unhandledRejection');
 
 bootstrap();

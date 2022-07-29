@@ -7,6 +7,7 @@ import { LOG_LEVELS } from './consts';
 
 dotenv.config();
 const loggerLevel = process.env.LOG_LEVEL || 2;
+const fileMaxSize = process.env.FILE_MAX_SIZE || 1000;
 const rootDirname = dirname(__dirname);
 
 const { errors, combine, json, timestamp, ms, prettyPrint } = winston.format;
@@ -29,7 +30,8 @@ export class LoggingService implements LoggerService {
           level: 'error',
           filename: `error.log`,
           dirname: join(rootDirname, './../logs/'),
-          maxsize: 5000000,
+          maxsize: Number(fileMaxSize),
+          maxFiles: 10,
         }),
         new winston.transports.Console({
           level: 'debug',
@@ -40,7 +42,8 @@ export class LoggingService implements LoggerService {
           level: 'info',
           filename: `combined.log`,
           dirname: join(rootDirname, './../logs/'),
-          maxsize: 5000000,
+          maxsize: Number(fileMaxSize),
+          maxFiles: 10,
         }),
       ],
       exceptionHandlers: [
@@ -48,7 +51,7 @@ export class LoggingService implements LoggerService {
           level: 'error',
           filename: 'exception.log',
           dirname: join(rootDirname, './../logs/'),
-          maxsize: 5000000,
+          maxsize: Number(fileMaxSize),
         }),
       ],
       rejectionHandlers: [
@@ -56,7 +59,7 @@ export class LoggingService implements LoggerService {
           level: 'error',
           filename: 'rejections.log',
           dirname: join(rootDirname, './../logs/'),
-          maxsize: 5000000,
+          maxsize: Number(fileMaxSize),
         }),
       ],
     });
