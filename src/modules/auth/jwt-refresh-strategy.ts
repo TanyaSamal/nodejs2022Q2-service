@@ -12,15 +12,17 @@ import { AuthService } from './auth.service';
 import { AuthErrors } from './consts';
 
 @Injectable()
-export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
+export class JwtRefreshStrategy extends PassportStrategy(
+  Strategy,
+  'jwt-refresh-token',
+) {
   constructor(
     private authService: AuthService,
     private configService: ConfigService,
   ) {
     super({
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-      ignoreExpiration: false,
-      secretOrKey: configService.get('JWT_SECRET_KEY'),
+      jwtFromRequest: ExtractJwt.fromBodyField('refreshToken'),
+      secretOrKey: configService.get('JWT_SECRET_REFRESH_KEY'),
     });
   }
 

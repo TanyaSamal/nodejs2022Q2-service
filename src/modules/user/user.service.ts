@@ -81,7 +81,7 @@ export class UserService {
     const condidate = await this.userRepository.findOne({
       where: { id: userId },
     });
-    console.log('condidate - ', condidate);
+
     if (condidate) {
       if (await bcrypt.compare(dto.oldPassword, condidate.password)) {
         condidate.password = await this.hashPassword(dto.newPassword);
